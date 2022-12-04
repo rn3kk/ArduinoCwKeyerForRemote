@@ -21,7 +21,7 @@ const char DOT = '.';
 const char CHANR_SEPARATOR = ']';
 const char WORD_SEPARATOR = ' ';
 
-String one_char = "";
+//String one_char = "";
 bool end_of_char_sended = false;
 unsigned long last_dash_or_dot_time = millis();
 
@@ -69,7 +69,8 @@ void loop(){
   if (digitalRead(dashPin) == LOW) //Тире
   {
     send_word_separator();
-    one_char = one_char + "-";    
+    //one_char = one_char + "-"; 
+    Serial.print('-');
     end_of_char_sended = false;
     digitalWrite(out_cw, HIGH);
     delay(3*dot_len);
@@ -81,7 +82,8 @@ void loop(){
   if (digitalRead(dotPin) == LOW) //Тире
   {
     send_word_separator();
-    one_char = one_char + ".";    
+    //one_char = one_char + ".";    
+    Serial.print('.');
     end_of_char_sended = false;
     digitalWrite(out_cw, HIGH);
     delay(dot_len);
@@ -91,9 +93,10 @@ void loop(){
   }
   if((millis() - last_dash_or_dot_time) > dot_len*3 && !end_of_char_sended)
   {
-    Serial.println(one_char+"]");
+    //Serial.println(one_char+"]");
+    Serial.print(']');
     Serial.flush();
-    one_char = "";    
+    //one_char = "";    
     end_of_char_sended = true;
   }
 }
@@ -105,7 +108,8 @@ void send_word_separator()
     unsigned long paus = millis() - last_dash_or_dot_time;
     if ( paus >= pause_beetween_word )
     {
-      one_char = one_char + " ";
+      //one_char = one_char + " ";
+      Serial.print(' ');
       //Serial.println(' ');
       //Serial.flush();      
     }
