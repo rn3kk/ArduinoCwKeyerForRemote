@@ -7,6 +7,8 @@ const int out_cw = 8;
 const int dashPin = 5; 
 const int dotPin = 3; 
 const int ledPin = 13; 
+const int pttPin = 2; 
+const int pttLedPin = 7; 
 
 int wpm = 24;
 
@@ -21,16 +23,20 @@ const char DOT = '.';
 const char CHANR_SEPARATOR = ']';
 const char WORD_SEPARATOR = ' ';
 
-//String one_char = "";
+int ptt_last_state = 0;
+
 bool end_of_char_sended = false;
 unsigned long last_dash_or_dot_time = millis();
 
 void setup() {
-  pinMode(ledPin, OUTPUT);  
-  pinMode(out_cw, OUTPUT);  
+  pinMode(ledPin, OUTPUT);
+  pinMode(out_cw, OUTPUT);
+  pinMode(pttLedPin, OUTPUT);
 
   pinMode(dashPin, INPUT_PULLUP);   
   pinMode(dotPin, INPUT_PULLUP);
+  
+  pinMode(pttPin, INPUT_PULLUP);
 
   wpm = EEPROM.read(EE_ADR_WPM);
   calculate_timings(wpm);
@@ -91,6 +97,7 @@ void loop(){
     last_dash_or_dot_time = millis();
     delay(dot_len);    
   }
+
   if((millis() - last_dash_or_dot_time) > dot_len*3 && !end_of_char_sended)
   {
     //Serial.println(one_char+"]");
@@ -98,6 +105,22 @@ void loop(){
     Serial.flush();
     //one_char = "";    
     end_of_char_sended = true;
+  }
+
+  int ptt_state = digitalRead(pttPin);
+  if (ptt_state != ptt_last_state )
+  {
+    ptt_last_state = ptt_state;
+    if(ptt_state == HIGH)
+    {
+      digitalWrite(pttLedPin, LOW);
+      Serial.write("0");
+    }
+    else
+    {
+      digitalWrite(pttLedPin, HIGH);
+      Serial.write("1");
+    }
   }
 }
 
