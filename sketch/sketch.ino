@@ -20,12 +20,13 @@ int pause_beetween_word = dot_len * 6;
 
 const char DASH = '-';
 const char DOT = '.';
-const char CHANR_SEPARATOR = ']';
+const char CHAR_SEPARATOR = ']';
 const char WORD_SEPARATOR = ' ';
 
 int ptt_last_state = 0;
 
 bool end_of_char_sended = false;
+bool end_of_word_sended = false;
 unsigned long last_dash_or_dot_time = millis();
 
 void setup() {
@@ -74,10 +75,12 @@ void loop(){
 
   if (digitalRead(dashPin) == LOW) //Тире
   {
-    send_word_separator();
+    //send_word_separator();
     //one_char = one_char + "-"; 
     Serial.print('-');
+    Serial.flush();
     end_of_char_sended = false;
+    end_of_word_sended = false;
     digitalWrite(out_cw, HIGH);
     delay(3*dot_len);
     digitalWrite(out_cw, LOW);
@@ -87,25 +90,21 @@ void loop(){
 
   if (digitalRead(dotPin) == LOW) //Тире
   {
-    send_word_separator();
+    //send_word_separator();
     //one_char = one_char + ".";    
     Serial.print('.');
+    Serial.flush();
     end_of_char_sended = false;
+    end_of_word_sended = false;
     digitalWrite(out_cw, HIGH);
     delay(dot_len);
     digitalWrite(out_cw, LOW);
     last_dash_or_dot_time = millis();
     delay(dot_len);    
   }
-
-  if((millis() - last_dash_or_dot_time) > dot_len*3 && !end_of_char_sended)
-  {
-    //Serial.println(one_char+"]");
-    Serial.print(']');
-    Serial.flush();
-    //one_char = "";    
-    end_of_char_sended = true;
-  }
+  
+  send_char_separator();
+  //send_word_separator();
 
   int ptt_state = digitalRead(pttPin);
   if (ptt_state != ptt_last_state )
@@ -115,27 +114,36 @@ void loop(){
     {
       digitalWrite(pttLedPin, LOW);
       Serial.write("0");
+      Serial.flush();
     }
     else
     {
       digitalWrite(pttLedPin, HIGH);
       Serial.write("1");
+      Serial.flush();
     }
+    delay(10);
+  }
+}
+
+void send_char_separator()
+{
+  if((millis() - last_dash_or_dot_time) > dot_len*3 && !end_of_char_sended)
+  {    
+    Serial.print(CHAR_SEPARATOR);
+    Serial.flush();    
+    end_of_char_sended = true;    
   }
 }
 
 void send_word_separator()
 {
-  if (end_of_char_sended)
-  {
-    unsigned long paus = millis() - last_dash_or_dot_time;
-    if ( paus >= pause_beetween_word )
-    {
-      //one_char = one_char + " ";
-      Serial.print(' ');
-      //Serial.println(' ');
-      //Serial.flush();      
-    }
+  unsigned long paus = millis() - last_dash_or_dot_time;
+  if ( paus >= pause_beetween_word && !end_of_word_sended)
+  {      
+    Serial.print(WORD_SEPARATOR);      
+    Serial.flush();   
+    end_of_word_sended = true;   
   }
 }
 
