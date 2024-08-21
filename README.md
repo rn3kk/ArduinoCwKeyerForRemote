@@ -1,1 +1,1 @@
-# Arduino Cw Keyer For Remote (Com port)
+# Arduino Cw Keyer For Remote operation via Com port
